@@ -65,6 +65,7 @@
 }
 
 @starting-style {
+
   .drawer-right[open]::backdrop,
   .drawer-left[open]::backdrop {
     background: rgb(0 0 0 / 0);
@@ -72,6 +73,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .drawer-right,
   .drawer-left,
   .drawer-right::backdrop,
@@ -101,10 +103,11 @@ body:has(.drawer-left[open]) {
     --carousel-arrow-border: none;
 
     /* Dots */
-    --carousel-dot-size: 0.5rem;
-    --carousel-dot-active-width: 0.5rem; /* e.g. 1.5rem for a pill-shaped active dot */
+    --carousel-dot-size: 5px;
+    --carousel-dot-active-width: 63px;
+    /* e.g. 1.5rem for a pill-shaped active dot */
     --carousel-dot-bg: rgb(255 255 255 / 0.5);
-    --carousel-dot-active-bg: rgb(255 255 255);
+    --carousel-dot-active-bg: #0644C1;
     --carousel-dot-radius: 9999px;
 
     /* Placement */
@@ -187,6 +190,7 @@ body:has(.drawer-left[open]) {
   }
 
   @media (prefers-reduced-motion: reduce) {
+
     .carousel-arrow,
     .carousel-dot::before {
       transition: none;

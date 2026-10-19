@@ -26,7 +26,7 @@ export function Header({ shopInfo }: { shopInfo: StorefrontShop }) {
   const logo = shopInfo.logo;
 
   return (
-    <header className="border-border bg-surface sticky top-0 z-40 border-b">
+    <header className="border-border bg-surface fixed left-0 w-screen top-0 z-40 border-b">
       <div
         className="max-w-page px-margin mx-auto flex h-16 w-full items-center justify-between"
         data-header-nav-group
