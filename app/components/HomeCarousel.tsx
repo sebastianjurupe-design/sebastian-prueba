@@ -82,16 +82,8 @@ export function HomeCarousel({ slides }: { slides: readonly CarouselSlide[] }) {
           </div>
         </div>
 
-        {/* {hasMultiple ? (
+        {hasMultiple ? (
           <div className="carousel-controls">
-            <button
-              type="button"
-              aria-label="Previous slide"
-              onClick={() => emblaApi?.scrollPrev()}
-              className="carousel-arrow"
-            >
-              <ChevronIcon direction="left" />
-            </button>
             <div role="group" aria-label="Choose slide" className="carousel-dots">
               {slides.map((slide, index) => (
                 <button
@@ -104,16 +96,8 @@ export function HomeCarousel({ slides }: { slides: readonly CarouselSlide[] }) {
                 />
               ))}
             </div>
-            <button
-              type="button"
-              aria-label="Next slide"
-              onClick={() => emblaApi?.scrollNext()}
-              className="carousel-arrow"
-            >
-              <ChevronIcon direction="right" />
-            </button>
           </div>
-        ) : null} */}
+        ) : null}
       </div>
     </section>
   );
@@ -149,9 +133,9 @@ function SlidePicture({ slide, priority }: { slide: CarouselSlide; priority: boo
   });
   const mobile = imageMobile
     ? responsiveImageProps(imageMobile.url, {
-        sizes: "100vw",
-        originalWidth: imageMobile.width,
-      })
+      sizes: "100vw",
+      originalWidth: imageMobile.width,
+    })
     : null;
 
   return (
