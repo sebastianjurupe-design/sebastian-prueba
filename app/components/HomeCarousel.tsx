@@ -82,7 +82,7 @@ export function HomeCarousel({ slides }: { slides: readonly CarouselSlide[] }) {
           </div>
         </div>
 
-        {hasMultiple ? (
+        {/* {hasMultiple ? (
           <div className="carousel-controls">
             <button
               type="button"
@@ -113,7 +113,7 @@ export function HomeCarousel({ slides }: { slides: readonly CarouselSlide[] }) {
               <ChevronIcon direction="right" />
             </button>
           </div>
-        ) : null}
+        ) : null} */}
       </div>
     </section>
   );
