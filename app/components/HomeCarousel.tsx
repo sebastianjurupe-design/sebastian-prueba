@@ -38,7 +38,8 @@ export function HomeCarousel({ slides }: { slides: readonly CarouselSlide[] }) {
 
   useEffect(() => {
     if (!emblaApi) return;
-    const autoplay = emblaApi.plugins().autoplay;
+    // An inactive carousel (a single slide) initializes no plugins.
+    const autoplay = emblaApi.plugins()?.autoplay;
 
     const onSelect = () => setSelectedIndex(emblaApi.selectedScrollSnap());
     const onPlay = () => {
@@ -59,7 +60,7 @@ export function HomeCarousel({ slides }: { slides: readonly CarouselSlide[] }) {
   }, [emblaApi, hasMultiple]);
 
   const togglePlay = useCallback(() => {
-    const autoplay = emblaApi?.plugins().autoplay;
+    const autoplay = emblaApi?.plugins()?.autoplay;
     if (!autoplay) return;
     if (autoplay.isPlaying()) {
       pausedByUser.current = true;
