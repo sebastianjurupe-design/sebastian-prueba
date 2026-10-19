@@ -85,3 +85,111 @@ body:has(.drawer-right[open]),
 body:has(.drawer-left[open]) {
   overflow: hidden;
 }
+
+/* Homepage carousel controls (app/components/HomeCarousel.tsx).
+ * Change the look through the variables below; the rules after them only wire
+ * the variables up. In `components` so Tailwind utilities can still override. */
+@layer components {
+  .home-carousel {
+    /* Arrows */
+    --carousel-arrow-size: 2rem;
+    --carousel-arrow-icon-size: 0.75rem;
+    --carousel-arrow-bg: rgb(255 255 255 / 0.8);
+    --carousel-arrow-bg-hover: rgb(255 255 255);
+    --carousel-arrow-color: rgb(0 0 0);
+    --carousel-arrow-radius: 9999px;
+    --carousel-arrow-border: none;
+
+    /* Dots */
+    --carousel-dot-size: 0.5rem;
+    --carousel-dot-active-width: 0.5rem; /* e.g. 1.5rem for a pill-shaped active dot */
+    --carousel-dot-bg: rgb(255 255 255 / 0.5);
+    --carousel-dot-active-bg: rgb(255 255 255);
+    --carousel-dot-radius: 9999px;
+
+    /* Placement */
+    --carousel-controls-bottom: 0.75rem;
+    --carousel-controls-gap: 0.5rem;
+  }
+
+  .carousel-controls {
+    position: absolute;
+    inset-inline: 0;
+    bottom: var(--carousel-controls-bottom);
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--carousel-controls-gap);
+  }
+
+  .carousel-arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--carousel-arrow-size);
+    height: var(--carousel-arrow-size);
+    border: var(--carousel-arrow-border);
+    border-radius: var(--carousel-arrow-radius);
+    background: var(--carousel-arrow-bg);
+    color: var(--carousel-arrow-color);
+    cursor: pointer;
+    transition: background-color 150ms ease;
+  }
+
+  .carousel-arrow:hover {
+    background: var(--carousel-arrow-bg-hover);
+  }
+
+  .carousel-arrow svg {
+    width: var(--carousel-arrow-icon-size);
+    height: var(--carousel-arrow-icon-size);
+  }
+
+  .carousel-dots {
+    display: flex;
+    align-items: center;
+  }
+
+  /* The button is a 24px tap target; ::before is the visible dot. */
+  .carousel-dot {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.5rem;
+    height: 1.5rem;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+  }
+
+  .carousel-dot::before {
+    content: "";
+    width: var(--carousel-dot-size);
+    height: var(--carousel-dot-size);
+    border-radius: var(--carousel-dot-radius);
+    background: var(--carousel-dot-bg);
+    transition:
+      width 200ms ease,
+      background-color 200ms ease;
+  }
+
+  .carousel-dot[aria-current="true"]::before {
+    width: var(--carousel-dot-active-width);
+    background: var(--carousel-dot-active-bg);
+  }
+
+  .carousel-arrow:focus-visible,
+  .carousel-dot:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .carousel-arrow,
+    .carousel-dot::before {
+      transition: none;
+    }
+  }
+}

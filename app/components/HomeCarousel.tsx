@@ -1,13 +1,6 @@
 import Autoplay from "embla-carousel-autoplay";
 import useEmblaCarousel from "embla-carousel-react";
-import {
-  type CSSProperties,
-  type ReactNode,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { type CSSProperties, type ReactNode, useEffect, useState } from "react";
 import { Link } from "react-router";
 
 import type { CarouselImage, CarouselSlide } from "~/lib/home-carousel";
@@ -20,6 +13,7 @@ function ratio(image: CarouselImage | null, fallback: string) {
   return image?.width && image.height ? `${image.width} / ${image.height}` : fallback;
 }
 
+// Controls are styled in app.css (.home-carousel, .carousel-arrow, .carousel-dot).
 export function HomeCarousel({ slides }: { slides: readonly CarouselSlide[] }) {
   const hasMultiple = slides.length > 1;
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, active: hasMultiple }, [
@@ -32,9 +26,6 @@ export function HomeCarousel({ slides }: { slides: readonly CarouselSlide[] }) {
     }),
   ]);
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
-  // Set when the shopper presses pause; hover/focus must not resume after that.
-  const pausedByUser = useRef(false);
 
   useEffect(() => {
     if (!emblaApi) return;
@@ -42,34 +33,16 @@ export function HomeCarousel({ slides }: { slides: readonly CarouselSlide[] }) {
     const autoplay = emblaApi.plugins()?.autoplay;
 
     const onSelect = () => setSelectedIndex(emblaApi.selectedScrollSnap());
-    const onPlay = () => {
-      if (pausedByUser.current) autoplay?.stop();
-      else setIsPlaying(true);
-    };
-    const onStop = () => setIsPlaying(false);
-
-    emblaApi.on("select", onSelect).on("autoplay:play", onPlay).on("autoplay:stop", onStop);
+    emblaApi.on("select", onSelect);
     onSelect();
 
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (hasMultiple && !reducedMotion) autoplay?.play();
 
     return () => {
-      emblaApi.off("select", onSelect).off("autoplay:play", onPlay).off("autoplay:stop", onStop);
+      emblaApi.off("select", onSelect);
     };
   }, [emblaApi, hasMultiple]);
-
-  const togglePlay = useCallback(() => {
-    const autoplay = emblaApi?.plugins()?.autoplay;
-    if (!autoplay) return;
-    if (autoplay.isPlaying()) {
-      pausedByUser.current = true;
-      autoplay.stop();
-    } else {
-      pausedByUser.current = false;
-      autoplay.play();
-    }
-  }, [emblaApi]);
 
   // The first slide sets the frame's shape on each breakpoint; other slides fill
   // it with object-cover.
@@ -81,7 +54,7 @@ export function HomeCarousel({ slides }: { slides: readonly CarouselSlide[] }) {
 
   return (
     <section
-      className="max-w-page px-margin mx-auto w-full"
+      className="home-carousel max-w-page px-margin mx-auto w-full"
       aria-roledescription="carousel"
       aria-label="Featured"
     >
@@ -110,11 +83,16 @@ export function HomeCarousel({ slides }: { slides: readonly CarouselSlide[] }) {
         </div>
 
         {hasMultiple ? (
-          <div className="absolute inset-x-0 bottom-3 z-10 flex items-center justify-center gap-2">
-            <CarouselButton label="Previous slide" onClick={() => emblaApi?.scrollPrev()}>
-              <img src="/icons/icon-chevron-left.svg" alt="" className="size-4" />
-            </CarouselButton>
-            <div role="group" aria-label="Choose slide" className="flex items-center gap-1">
+          <div className="carousel-controls">
+            <button
+              type="button"
+              aria-label="Previous slide"
+              onClick={() => emblaApi?.scrollPrev()}
+              className="carousel-arrow"
+            >
+              <ChevronIcon direction="left" />
+            </button>
+            <div role="group" aria-label="Choose slide" className="carousel-dots">
               {slides.map((slide, index) => (
                 <button
                   key={slide.id}
@@ -122,23 +100,18 @@ export function HomeCarousel({ slides }: { slides: readonly CarouselSlide[] }) {
                   aria-label={`Go to slide ${index + 1}`}
                   aria-current={index === selectedIndex ? "true" : undefined}
                   onClick={() => emblaApi?.scrollTo(index)}
-                  className="focus-visible:outline-accent inline-flex size-6 items-center justify-center rounded-full focus-visible:outline focus-visible:outline-2"
-                >
-                  <span
-                    className={`block size-2 rounded-full motion-safe:transition-colors ${index === selectedIndex ? "bg-white" : "bg-white/50"}`}
-                  />
-                </button>
+                  className="carousel-dot"
+                />
               ))}
             </div>
-            <CarouselButton label="Next slide" onClick={() => emblaApi?.scrollNext()}>
-              <img src="/icons/icon-chevron-right.svg" alt="" className="size-4" />
-            </CarouselButton>
-            <CarouselButton
-              label={isPlaying ? "Pause slideshow" : "Play slideshow"}
-              onClick={togglePlay}
+            <button
+              type="button"
+              aria-label="Next slide"
+              onClick={() => emblaApi?.scrollNext()}
+              className="carousel-arrow"
             >
-              {isPlaying ? <PauseIcon /> : <PlayIcon />}
-            </CarouselButton>
+              <ChevronIcon direction="right" />
+            </button>
           </div>
         ) : null}
       </div>
@@ -206,40 +179,17 @@ function SlidePicture({ slide, priority }: { slide: CarouselSlide; priority: boo
   );
 }
 
-function CarouselButton({
-  label,
-  onClick,
-  children,
-}: {
-  label: string;
-  onClick: () => void;
-  children: ReactNode;
-}) {
+// Inline (not <img>) so the arrow takes its color from CSS `color`.
+function ChevronIcon({ direction }: { direction: "left" | "right" }) {
   return (
-    <button
-      type="button"
-      aria-label={label}
-      onClick={onClick}
-      className="focus-visible:outline-accent inline-flex size-8 items-center justify-center rounded-full bg-white/80 text-black hover:bg-white focus-visible:outline focus-visible:outline-2 motion-safe:transition-colors"
-    >
-      {children}
-    </button>
-  );
-}
-
-function PauseIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="size-3.5" aria-hidden="true">
-      <rect x="6" y="5" width="4" height="14" rx="1" />
-      <rect x="14" y="5" width="4" height="14" rx="1" />
-    </svg>
-  );
-}
-
-function PlayIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="size-3.5" aria-hidden="true">
-      <path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5Z" />
+    <svg viewBox="0 0 8 12" fill="none" aria-hidden="true">
+      <path
+        d={direction === "left" ? "M6.5 11L1.5 6L6.5 1" : "M1.5 1L6.5 6L1.5 11"}
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
