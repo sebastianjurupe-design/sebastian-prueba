@@ -27,8 +27,8 @@ export function HomeCarousel({ slides }: { slides: readonly CarouselSlide[] }) {
       delay: AUTOPLAY_DELAY_MS,
       playOnInit: false,
       stopOnInteraction: false,
-      stopOnMouseEnter: true,
-      stopOnFocusIn: true,
+      stopOnMouseEnter: false,
+      stopOnFocusIn: false,
     }),
   ]);
   const [selectedIndex, setSelectedIndex] = useState(0);
