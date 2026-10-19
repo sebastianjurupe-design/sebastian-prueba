@@ -12,8 +12,9 @@ import {
   Toolbar,
   useLoadMore,
 } from "~/components/CollectionBrowse";
-import { ProductCard } from "~/components/ProductCard";
+import { FILTERED_GRID_SIZES, ProductCard } from "~/components/ProductCard";
 import { loadCollectionPage } from "~/lib/collection";
+import { responsiveImageProps } from "~/lib/image";
 import { storefrontClientContext } from "~/lib/storefront";
 import { formatPageTitle, getShopNameFromRootMatch } from "~/lib/storefront-shop";
 
@@ -117,7 +118,11 @@ function CollectionHeader({ collection }: { collection: CollectionData }) {
         {collection.image ? (
           <div className="bg-surface-secondary aspect-landscape rounded-card overflow-hidden">
             <img
-              src={collection.image.url}
+              {...responsiveImageProps(collection.image.url, {
+                // 16rem column beside the title; full width on phones.
+                sizes: "(min-width: 768px) 256px, 100vw",
+                originalWidth: collection.image.width,
+              })}
               alt={collection.image.altText ?? collection.title}
               width={collection.image.width ?? undefined}
               height={collection.image.height ?? undefined}
@@ -145,7 +150,7 @@ function ProductGrid({ products }: { products: readonly ProductNode[] }) {
       >
         {products.map((product, index) => (
           <li key={`${product.handle}-${index}`}>
-            <ProductCard product={product} priority={index < 3} />
+            <ProductCard product={product} priority={index < 3} sizes={FILTERED_GRID_SIZES} />
           </li>
         ))}
       </ul>

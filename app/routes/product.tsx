@@ -11,7 +11,9 @@ import { useEffect, useMemo, useState, type MouseEvent } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
 
 import { ProductCard, PRODUCT_CARD_FRAGMENT } from "~/components/ProductCard";
+import { CATALOG_CACHE } from "~/lib/cache";
 import { openCartDrawer } from "~/lib/cart-drawer";
+import { responsiveImageProps } from "~/lib/image";
 import { formatPrice, salePercent } from "~/lib/money";
 import { ProductProvider, useProductForm } from "~/lib/product";
 import { storefrontClientContext } from "~/lib/storefront";
@@ -24,7 +26,6 @@ const PRODUCT_VARIANT_FRAGMENT = gql(`
     id
     title
     availableForSale
-    quantityAvailable
     selectedOptions {
       name
       value
@@ -154,6 +155,7 @@ export async function loader({ context, params, request }: Route.LoaderArgs) {
   });
   const { data } = await storefrontClient.graphql(PRODUCT_QUERY, {
     variables: { handle, selectedOptions },
+    cache: CATALOG_CACHE,
   });
 
   if (!data?.product) throw new Response("Not Found", { status: 404 });
@@ -311,7 +313,12 @@ function ProductGallery({
             >
               <div className="bg-surface-secondary aspect-square overflow-hidden">
                 <img
-                  src={image.url}
+                  {...responsiveImageProps(image.url, {
+                    // Swipeable full-width slides on phones; from md, two columns
+                    // inside the gallery's 2/3 of the page.
+                    sizes: "(min-width: 1280px) 420px, (min-width: 768px) 34vw, 100vw",
+                    originalWidth: image.width,
+                  })}
                   alt={image.altText ?? product.title}
                   width={image.width ?? undefined}
                   height={image.height ?? undefined}
@@ -383,32 +390,16 @@ function PriceBlock({
 }
 
 function InventoryHint({ selectedVariant }: { selectedVariant: ProductVariant | null }) {
-  if (!selectedVariant) return null;
-  if (!selectedVariant.availableForSale) {
-    return (
-      <div className="mt-3">
-        <div className="flex items-center gap-2 text-sm" data-product-inventory>
-          <span
-            className="bg-critical inline-block h-2 w-2 shrink-0 rounded-full"
-            aria-hidden="true"
-          />
-          <span className="text-critical font-medium">Out of stock</span>
-        </div>
-      </div>
-    );
-  }
-
-  const quantity = selectedVariant.quantityAvailable;
-  if (quantity == null || quantity > 5) return null;
+  if (!selectedVariant || selectedVariant.availableForSale) return null;
 
   return (
     <div className="mt-3">
       <div className="flex items-center gap-2 text-sm" data-product-inventory>
         <span
-          className="bg-warning inline-block h-2 w-2 shrink-0 rounded-full"
+          className="bg-critical inline-block h-2 w-2 shrink-0 rounded-full"
           aria-hidden="true"
         />
-        <span className="text-warning font-medium">Only {quantity} left in stock</span>
+        <span className="text-critical font-medium">Out of stock</span>
       </div>
     </div>
   );

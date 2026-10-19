@@ -1,8 +1,9 @@
 import { gql, parseCollectionParams, type StorefrontApi } from "@shopify/hydrogen";
-import type { StorefrontClient } from "@shopify/hydrogen";
+import type { CachingStrategy, StorefrontClient } from "@shopify/hydrogen";
 import type { ProductFilter as StorefrontApiProductFilter } from "@shopify/hydrogen/storefront-api-types";
 
 import { PRODUCT_CARD_FRAGMENT } from "~/components/ProductCard";
+import { CATALOG_CACHE } from "~/lib/cache";
 
 export const COLLECTION_PAGE_SIZE = 9;
 
@@ -81,7 +82,7 @@ export async function loadCollectionPage({
   handle,
   request,
 }: {
-  storefrontClient: StorefrontClient;
+  storefrontClient: StorefrontClient<{ cache?: CachingStrategy }>;
   handle: string;
   request: Request;
 }) {
@@ -99,7 +100,10 @@ export async function loadCollectionPage({
     reverse: browse.reverse || undefined,
   };
 
-  const { data } = await storefrontClient.graphql(COLLECTION_QUERY, { variables });
+  const { data } = await storefrontClient.graphql(COLLECTION_QUERY, {
+    variables,
+    cache: CATALOG_CACHE,
+  });
 
   if (!data?.collection) throw new Response("Collection not found", { status: 404 });
 

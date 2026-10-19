@@ -1,5 +1,6 @@
 import {
   type CacheInstance,
+  type CachingStrategy,
   createShopifyRequestContext,
   createStorefrontClient,
   type PublicStorefrontClient,
@@ -20,7 +21,11 @@ import {
 
 // Real store: private token + trusted buyer IP. mock.shop: tokenless public
 // access (it is auth-free and rejects any private token, even a placeholder).
-export type RequestStorefrontClient = RequestScopedPrivateStorefrontClient | PublicStorefrontClient;
+// Both are created with a cache, so queries can pass a `cache` strategy.
+type CacheOption = { cache?: CachingStrategy };
+export type RequestStorefrontClient =
+  | RequestScopedPrivateStorefrontClient<CacheOption>
+  | PublicStorefrontClient<CacheOption>;
 
 export function createRequestStorefrontClient(
   request: Request,

@@ -16,7 +16,7 @@ import {
   Toolbar,
   useLoadMore,
 } from "~/components/CollectionBrowse";
-import { ProductCard } from "~/components/ProductCard";
+import { FILTERED_GRID_SIZES, ProductCard } from "~/components/ProductCard";
 import { loadSearchPage, type SearchPageData } from "~/lib/search";
 import { storefrontClientContext } from "~/lib/storefront";
 import { formatPageTitle, getShopNameFromRootMatch } from "~/lib/storefront-shop";
@@ -170,7 +170,7 @@ function ProductGrid({ products }: { products: readonly ProductNode[] }) {
       >
         {products.map((product, index) => (
           <li key={`${product.handle}-${index}`}>
-            <ProductCard product={product} priority={index < 3} />
+            <ProductCard product={product} priority={index < 3} sizes={FILTERED_GRID_SIZES} />
           </li>
         ))}
       </ul>

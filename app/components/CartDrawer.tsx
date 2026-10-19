@@ -4,6 +4,7 @@ import { Link } from "react-router";
 
 import { useCart, useCartForm } from "~/lib/cart";
 import { closeCartDrawer, configureOpenCartAction, CART_DRAWER_ID } from "~/lib/cart-drawer";
+import { responsiveImageProps } from "~/lib/image";
 import { formatPrice } from "~/lib/money";
 
 import { publishCartViewed } from "./AnalyticsTrackers";
@@ -125,7 +126,7 @@ export function CartLineItem({
       <div className="bg-surface-secondary size-20 shrink-0 overflow-hidden">
         {merchandise?.image ? (
           <img
-            src={merchandise.image.url}
+            {...responsiveImageProps(merchandise.image.url, { sizes: "80px" })}
             alt={merchandise.image.altText ?? product?.title ?? merchandise.title ?? ""}
             className="h-full w-full object-cover"
             loading="lazy"

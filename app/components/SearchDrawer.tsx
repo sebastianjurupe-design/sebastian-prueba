@@ -10,6 +10,7 @@ import { useRef } from "react";
 import { Link, useNavigate } from "react-router";
 
 import { SEARCH_DRAWER_ID, closeSearchDrawer } from "~/lib/cart-drawer";
+import { responsiveImageProps } from "~/lib/image";
 import { formatPrice } from "~/lib/money";
 import { describeSuggestions } from "~/lib/predictive-search";
 import { routeTemplates } from "~/lib/route-templates";
@@ -185,7 +186,7 @@ function SuggestionLink({ product, term }: { product: PredictiveSearchProductIte
     >
       {image !== null ? (
         <img
-          src={image.url}
+          {...responsiveImageProps(image.url, { sizes: "48px" })}
           alt={image.altText ?? ""}
           width={48}
           height={48}

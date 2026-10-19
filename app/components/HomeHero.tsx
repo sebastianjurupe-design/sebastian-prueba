@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router";
 
 import type { HomeHeroData } from "~/lib/home-hero";
+import { responsiveImageProps } from "~/lib/image";
 
 export function HomeHero({ hero }: { hero: HomeHeroData }) {
   const [failedImageUrl, setFailedImageUrl] = useState<string | null>(null);
@@ -13,7 +14,8 @@ export function HomeHero({ hero }: { hero: HomeHeroData }) {
         {image ? (
           <>
             <img
-              src={image.url}
+              // Full-bleed banner: always as wide as the viewport.
+              {...responsiveImageProps(image.url, { sizes: "100vw" })}
               alt={image.altText ?? ""}
               className="absolute inset-0 h-full w-full object-cover"
               loading="eager"

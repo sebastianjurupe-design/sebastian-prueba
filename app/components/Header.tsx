@@ -3,6 +3,7 @@ import { Link } from "react-router";
 
 import { useCart } from "~/lib/cart";
 import { CART_DRAWER_ID, SEARCH_DRAWER_ID, openDialogFromLinkClick } from "~/lib/cart-drawer";
+import { responsiveImageProps } from "~/lib/image";
 import type { StorefrontShop } from "~/lib/storefront-shop";
 
 import { MobileNav, MobileNavTrigger } from "./MobileNav";
@@ -42,7 +43,8 @@ export function Header({ shopInfo }: { shopInfo: StorefrontShop }) {
           >
             {logo && failedLogoUrl !== logo.url ? (
               <img
-                src={logo.url}
+                // The link caps the logo at 12rem wide.
+                {...responsiveImageProps(logo.url, { sizes: "192px", originalWidth: logo.width })}
                 alt={logo.altText ?? shopInfo.name}
                 width={logo.width ?? undefined}
                 height={logo.height ?? undefined}

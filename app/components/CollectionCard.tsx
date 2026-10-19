@@ -1,6 +1,8 @@
 import { gql, type StorefrontApi } from "@shopify/hydrogen";
 import { Link } from "react-router";
 
+import { responsiveImageProps } from "~/lib/image";
+
 export const COLLECTION_CARD_PRODUCT_COUNT_LIMIT = 100;
 
 export const COLLECTION_CARD_FRAGMENT = gql(`
@@ -85,7 +87,11 @@ export function CollectionCard({
         {image ? (
           <div className="h-full w-full motion-safe:transition-transform motion-safe:duration-300 motion-safe:group-hover:scale-[1.04]">
             <img
-              src={image.url}
+              {...responsiveImageProps(image.url, {
+                // Up to 3 columns; on phones a single full-width column.
+                sizes: "(min-width: 1280px) 427px, (min-width: 768px) 34vw, 100vw",
+                originalWidth: imageWidth,
+              })}
               alt=""
               width={imageWidth}
               height={imageHeight}

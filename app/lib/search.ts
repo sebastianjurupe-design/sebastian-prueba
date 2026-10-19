@@ -1,8 +1,9 @@
 import { gql, parseCollectionParams, type StorefrontApi } from "@shopify/hydrogen";
-import type { StorefrontClient } from "@shopify/hydrogen";
+import type { CachingStrategy, StorefrontClient } from "@shopify/hydrogen";
 import type { ProductFilter as StorefrontApiProductFilter } from "@shopify/hydrogen/storefront-api-types";
 
 import { PRODUCT_CARD_FRAGMENT } from "~/components/ProductCard";
+import { SEARCH_CACHE } from "~/lib/cache";
 
 export const SEARCH_PAGE_SIZE = 9;
 
@@ -106,7 +107,7 @@ export async function loadSearchPage({
   storefrontClient,
   request,
 }: {
-  storefrontClient: StorefrontClient;
+  storefrontClient: StorefrontClient<{ cache?: CachingStrategy }>;
   request: Request;
 }): Promise<SearchPageData> {
   const url = new URL(request.url);
@@ -140,7 +141,10 @@ export async function loadSearchPage({
     reverse: sortKey === "PRICE" ? browse.reverse || undefined : undefined,
   };
 
-  const { data } = await storefrontClient.graphql(SEARCH_QUERY, { variables });
+  const { data } = await storefrontClient.graphql(SEARCH_QUERY, {
+    variables,
+    cache: SEARCH_CACHE,
+  });
 
   if (!data?.search) throw new Response("Search unavailable", { status: 502 });
 

@@ -1,5 +1,11 @@
-import { gql, type StorefrontApi, type StorefrontClient } from "@shopify/hydrogen";
+import {
+  type CachingStrategy,
+  gql,
+  type StorefrontApi,
+  type StorefrontClient,
+} from "@shopify/hydrogen";
 
+import { SHOP_CACHE } from "~/lib/cache";
 import { normalizeStorefrontShop, type StorefrontShop } from "~/lib/storefront-shop";
 
 export const ROOT_LAYOUT_QUERY = gql(`
@@ -46,9 +52,9 @@ type RootLayoutLoaderData = {
 };
 
 export async function loadRootLayout(
-  storefrontClient: Pick<StorefrontClient, "graphql">,
+  storefrontClient: Pick<StorefrontClient<{ cache?: CachingStrategy }>, "graphql">,
 ): Promise<RootLayoutLoaderData> {
-  const layoutResult = await storefrontClient.graphql(ROOT_LAYOUT_QUERY);
+  const layoutResult = await storefrontClient.graphql(ROOT_LAYOUT_QUERY, { cache: SHOP_CACHE });
 
   if (layoutResult.errors) {
     console.error(

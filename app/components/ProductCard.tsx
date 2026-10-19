@@ -1,6 +1,7 @@
 import { gql, type StorefrontApi } from "@shopify/hydrogen";
 import { Link } from "react-router";
 
+import { responsiveImageProps } from "~/lib/image";
 import { compareMoney, formatPrice } from "~/lib/money";
 
 export const PRODUCT_CARD_FRAGMENT = gql(`
@@ -17,6 +18,7 @@ export const PRODUCT_CARD_FRAGMENT = gql(`
       nodes {
         url
         altText
+        width
       }
     }
     availableForSale
@@ -44,12 +46,24 @@ export type ProductCardData = StorefrontApi.ResultOf<
   typeof PRODUCT_CARD_SHAPE_QUERY
 >["products"]["nodes"][number];
 
+// Default grid: 1 column on phones, 2 on tablets, 4 on desktop (page caps at 80rem).
+const DEFAULT_CARD_SIZES = "(min-width: 1280px) 320px, (min-width: 1024px) 25vw, (min-width: 768px) 50vw, 100vw";
+
+// Collection and search grids: 2 columns, then 3 beside a 15rem filter sidebar.
+export const FILTERED_GRID_SIZES = "(min-width: 1280px) 340px, (min-width: 1024px) 28vw, 50vw";
+
 type ProductCardProps = {
   product: ProductCardData;
   priority?: boolean;
+  // How wide the card renders in its grid; see `responsiveImageProps`.
+  sizes?: string;
 };
 
-export function ProductCard({ product, priority = false }: ProductCardProps) {
+export function ProductCard({
+  product,
+  priority = false,
+  sizes = DEFAULT_CARD_SIZES,
+}: ProductCardProps) {
   const primaryImage = product.featuredImage ?? product.images.nodes[0] ?? null;
   const hoverImage = product.images.nodes[1] ?? null;
   const price = product.priceRange.minVariantPrice;
@@ -68,7 +82,10 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
         {primaryImage ? (
           <div className="h-full w-full motion-safe:transition-transform motion-safe:duration-300 motion-safe:group-hover:scale-[1.04]">
             <img
-              src={primaryImage.url}
+              {...responsiveImageProps(primaryImage.url, {
+                sizes,
+                originalWidth: primaryImage.width,
+              })}
               alt={primaryImage.altText ?? product.title}
               className="h-full w-full object-cover"
               loading={priority ? "eager" : "lazy"}
@@ -79,7 +96,7 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
         {hoverImage ? (
           <div className="pointer-events-none absolute inset-0 opacity-0 motion-safe:transition-opacity motion-safe:duration-300 motion-safe:group-hover:opacity-100">
             <img
-              src={hoverImage.url}
+              {...responsiveImageProps(hoverImage.url, { sizes, originalWidth: hoverImage.width })}
               alt={hoverImage.altText ?? ""}
               className="h-full w-full object-cover"
               loading="lazy"
