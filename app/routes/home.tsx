@@ -6,9 +6,11 @@ import {
   COLLECTION_CARD_FRAGMENT,
   type CollectionCardData,
 } from "~/components/CollectionCard";
+import { HomeCarousel } from "~/components/HomeCarousel";
 import { HomeHero } from "~/components/HomeHero";
 import { ProductCard, PRODUCT_CARD_FRAGMENT, type ProductCardData } from "~/components/ProductCard";
 import { CATALOG_CACHE } from "~/lib/cache";
+import { HOME_CAROUSEL_FRAGMENT, selectCarouselSlides } from "~/lib/home-carousel";
 import { selectHomeHero } from "~/lib/home-hero";
 import { storefrontClientContext } from "~/lib/storefront";
 import {
@@ -52,9 +54,10 @@ const HOME_QUERY = gql(
           }
         }
       }
+      ...HomeCarousel
     }
   `,
-  [PRODUCT_CARD_FRAGMENT, COLLECTION_CARD_FRAGMENT],
+  [PRODUCT_CARD_FRAGMENT, COLLECTION_CARD_FRAGMENT, HOME_CAROUSEL_FRAGMENT],
 );
 
 export function meta({ matches }: Route.MetaArgs) {
@@ -68,7 +71,7 @@ export function meta({ matches }: Route.MetaArgs) {
   ];
 }
 
-export async function loader({ context }: Route.LoaderArgs) {
+export async function loader({ context, request }: Route.LoaderArgs) {
   const storefrontClient = context.get(storefrontClientContext);
   const { data } = await storefrontClient.graphql(HOME_QUERY, { cache: CATALOG_CACHE });
 
@@ -80,10 +83,15 @@ export async function loader({ context }: Route.LoaderArgs) {
   // category list above.
   const heroCollections = data?.heroCollections.nodes ?? [];
 
+  // Slides managed in the admin (metaobjects); the collection hero is the
+  // fallback while the carousel has none.
+  const carouselSlides = selectCarouselSlides(data, new URL(request.url));
+
   return {
     featuredProducts,
     featuredCollections,
     heroCollections,
+    carouselSlides,
   };
 }
 
@@ -165,7 +173,11 @@ export default function Home({ loaderData }: Route.ComponentProps) {
 
   return (
     <main className="flex-1" id="main-content" tabIndex={-1}>
-      <HomeHero hero={hero} />
+      {loaderData.carouselSlides.length > 0 ? (
+        <HomeCarousel slides={loaderData.carouselSlides} />
+      ) : (
+        <HomeHero hero={hero} />
+      )}
       <NewArrivals products={loaderData.featuredProducts} />
       <ShopByCategory collections={loaderData.featuredCollections} />
     </main>
